@@ -11,7 +11,7 @@ import static snake.board.Board.BOARD_SIZE;
 public class BoardEncodableWrapper implements Encodable {
     public static final int EXTENDED_BOARD_SIZE = BOARD_SIZE * 2 - 1;
     public static final int FLATTEN_LAYER_SIZE = EXTENDED_BOARD_SIZE * EXTENDED_BOARD_SIZE;
-    public static final int TOTAL_OUTPUT_SIZE = FLATTEN_LAYER_SIZE;
+    public static final int TOTAL_OUTPUT_SIZE = FLATTEN_LAYER_SIZE * 2;
 
     private double[] data;
 
@@ -38,8 +38,8 @@ public class BoardEncodableWrapper implements Encodable {
 
     private void fillCherries(double[] field, Board board) {
         for (Point each : board.getCherries()) {
-            //field[FLATTEN_LAYER_SIZE + each.getY() * BOARD_SIZE + each.getX()] = 1.8 * 10;
-            field[each.getY() * BOARD_SIZE + each.getX()] = 1;
+            field[FLATTEN_LAYER_SIZE + each.getY() * BOARD_SIZE + each.getX()] = 1;
+            //field[each.getY() * BOARD_SIZE + each.getX()] = 1;
         }
     }
 

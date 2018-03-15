@@ -48,13 +48,13 @@ public class Runner {
 
                 Board board = new Board();
                 //keyListener.setSnake(board.getSnake());
-                final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("F:/policy.nn");
+                final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("D:/policy.nn");
                 panel.setBoard(board);
 
                 while(true) {
                     panel.repaint();
                     INDArray input = Nd4j.create(new BoardEncodableWrapper(board).toArray());
-                    INDArray reshape = input.reshape(1, 1, 41, 41);
+                    INDArray reshape = input.reshape(1, 2, 41, 41);
                     Integer action = policy.nextAction(reshape);
                     board.getSnake().setDirection(BodyPart.values()[action]);
                     if (!board.move()) {

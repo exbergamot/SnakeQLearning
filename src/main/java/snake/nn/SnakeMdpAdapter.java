@@ -12,7 +12,7 @@ import static snake.nn.BoardEncodableWrapper.TOTAL_OUTPUT_SIZE;
 
 public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, DiscreteSpace> {
     private DiscreteSpace actionSpace = new DiscreteSpace(4);
-    private ObservationSpace<BoardEncodableWrapper> observationSpace = new ArrayObservationSpace<>(new int[]{1,41,41});
+    private ObservationSpace<BoardEncodableWrapper> observationSpace = new ArrayObservationSpace<>(new int[]{2,41,41});
     private Board board = new Board();
 
     @Override

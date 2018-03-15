@@ -26,8 +26,8 @@ public class NNRunner {
             new QLearning.QLConfiguration(
                     123,    //Random seed
                     400,    //Max step By epoch
-                    300000, //Max step
-                    300000, //Max size of experience replay
+                    100000, //Max step
+                    100000, //Max size of experience replay
                     32,     //size of batches
                     500,    //target update (hard)
                     15,     //num step noop warmup
@@ -35,7 +35,7 @@ public class NNRunner {
                     0.99,   //gamma
                     1.0,    //td-error clipping
                     0.001f,   //min epsilon
-                    100000,   //num step for eps greedy anneal
+                    20000,   //num step for eps greedy anneal
                     true    //double DQN
             );
 
@@ -61,7 +61,7 @@ public class NNRunner {
         MDP<BoardEncodableWrapper, Integer, DiscreteSpace> mdp = new SnakeMdpAdapter();
 
         DQNFactoryStdConv factory = new DQNFactoryStdConv(CONV_CONFIG);
-        DQN dqnConv = factory.buildDQN(new int[]{1, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
+        DQN dqnConv = factory.buildDQN(new int[]{2, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
         QLearningDiscreteImpl dql = new QLearningDiscreteImpl(mdp, dqnConv, CARTPOLE_QL, manager, CARTPOLE_QL.getEpsilonNbStep());
 
         //define the training
@@ -74,7 +74,7 @@ public class NNRunner {
         DQNPolicy<BoardEncodableWrapper> pol = dql.getPolicy();
 
         //serialize and save (serialization showcase, but not required)
-        pol.save("F:/policy.nn");
+        pol.save("D:/policy.nn");
 
         //close the mdp (close http)
         mdp.close();
