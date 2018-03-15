@@ -18,6 +18,7 @@ import org.deeplearning4j.rl4j.util.DataManager;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
 import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
 
 public class NNRunner {
@@ -30,8 +31,8 @@ public class NNRunner {
                     100000, //Max size of experience replay
                     32,     //size of batches
                     500,    //target update (hard)
-                    15,     //num step noop warmup
-                    1,   //reward scaling
+                    6,     //num step noop warmup
+                    0.3f,   //reward scaling
                     0.99,   //gamma
                     1.0,    //td-error clipping
                     0.001f,   //min epsilon
@@ -39,13 +40,9 @@ public class NNRunner {
                     true    //double DQN
             );
 
-    public static DQNFactoryStdDense.Configuration CARTPOLE_NET =
-            DQNFactoryStdDense.Configuration.builder()
-                    .l2(0.00001).learningRate(0.0005).numHiddenNodes(64).numLayer(3).build();
-
     public static DQNFactoryStdConv.Configuration CONV_CONFIG =
             DQNFactoryStdConv.Configuration.builder()
-                    .l2(0.00001).learningRate(0.0005).build();
+                    .l2(0.000).learningRate(0.001).build();
 
     public static void main(String[] args) throws IOException {
         cartPole();
@@ -61,7 +58,7 @@ public class NNRunner {
         MDP<BoardEncodableWrapper, Integer, DiscreteSpace> mdp = new SnakeMdpAdapter();
 
         DQNFactoryStdConv factory = new DQNFactoryStdConv(CONV_CONFIG);
-        DQN dqnConv = factory.buildDQN(new int[]{2, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
+        DQN dqnConv = factory.buildDQN(new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
         QLearningDiscreteImpl dql = new QLearningDiscreteImpl(mdp, dqnConv, CARTPOLE_QL, manager, CARTPOLE_QL.getEpsilonNbStep());
 
         //define the training

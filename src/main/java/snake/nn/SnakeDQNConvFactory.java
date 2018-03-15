@@ -47,11 +47,11 @@ public class SnakeDQNConvFactory implements DQNFactory {
                         .activation(Activation.RELU).build());
 
 
-        confB.layer(1, new ConvolutionLayer.Builder(4, 4).nOut(32).stride(1, 1).activation(Activation.RELU).build());
+        confB.layer(1, new ConvolutionLayer.Builder(5, 5).nOut(32).stride(2, 2).activation(Activation.RELU).build());
 
-        confB.layer(2, new DenseLayer.Builder().nOut(256).activation(Activation.RELU).build());
+        confB.layer(2, new DenseLayer.Builder().nOut(64).activation(Activation.RELU).build());
 
-        confB.layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY).nOut(numOutputs)
+        confB.layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.SIGMOID).nOut(numOutputs)
                 .build());
 
         confB.setInputType(InputType.convolutional(shapeInputs[1], shapeInputs[2], shapeInputs[0]));

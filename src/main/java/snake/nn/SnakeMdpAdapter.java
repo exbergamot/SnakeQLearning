@@ -8,11 +8,13 @@ import org.deeplearning4j.rl4j.space.ObservationSpace;
 import snake.board.Board;
 import snake.body.BodyPart;
 
+import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
+import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
 import static snake.nn.BoardEncodableWrapper.TOTAL_OUTPUT_SIZE;
 
 public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, DiscreteSpace> {
     private DiscreteSpace actionSpace = new DiscreteSpace(4);
-    private ObservationSpace<BoardEncodableWrapper> observationSpace = new ArrayObservationSpace<>(new int[]{2,41,41});
+    private ObservationSpace<BoardEncodableWrapper> observationSpace = new ArrayObservationSpace<>(new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE,EXTENDED_BOARD_SIZE});
     private Board board = new Board();
 
     @Override
