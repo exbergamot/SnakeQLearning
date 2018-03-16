@@ -54,7 +54,7 @@ public class Runner {
                 while(true) {
                     panel.repaint();
                     INDArray input = Nd4j.create(new BoardEncodableWrapper(board).toArray());
-                    INDArray reshape = input.reshape(1, 2, 41, 41);
+                    INDArray reshape = input.reshape(1, 3, 23, 23);
                     Integer action = policy.nextAction(reshape);
                     board.getSnake().setDirection(BodyPart.values()[action]);
                     if (!board.move()) {
