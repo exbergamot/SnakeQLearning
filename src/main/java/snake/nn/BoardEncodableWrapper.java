@@ -44,22 +44,22 @@ public class BoardEncodableWrapper implements Encodable {
     private void fillHead(double[] head, Board board) {
         Arrays.fill(head, -0.004);
         Point headPoint = board.getSnake().getHead();
-        head[(headPoint.getY() + 1) * BOARD_SIZE + headPoint.getX() + 1] = 2;
+        head[(headPoint.getY() + 1) * EXTENDED_BOARD_SIZE + headPoint.getX() + 1] = 2;
     }
 
     private void fillCherries(double[] field, Board board) {
         Arrays.fill(field, -0.076);
         for (Point each : board.getCherries()) {
-            field[(each.getY() + 1) * BOARD_SIZE + each.getX() + 1] = 1.924;
+            field[(each.getY() + 1) * EXTENDED_BOARD_SIZE + each.getX() + 1] = 1.924;
         }
     }
 
     private void fillSnakeBody(double[] field, Board board) {
         for (Point each : board.getSnake().getBody()) {
-            field[(each.getY() + 1) * BOARD_SIZE + each.getX() + 1] = 1.67;
+            field[(each.getY() + 1) * EXTENDED_BOARD_SIZE + each.getX() + 1] = 1.67;
         }
         Point head = board.getSnake().getHead();
-        field[(head.getY() + 1) * BOARD_SIZE + head.getX() + 1] = -0.33;
+        field[(head.getY() + 1) * EXTENDED_BOARD_SIZE + head.getX() + 1] = -0.33;
     }
 
     private void fillBorders(double[] field) {

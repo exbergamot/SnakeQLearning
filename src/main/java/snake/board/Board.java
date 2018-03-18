@@ -16,10 +16,10 @@ import static snake.body.BodyPart.CHERRY;
 public class Board implements Drawable {
 
     public static int CELL_SIZE = 20;
-    public static int BOARD_SIZE = 21;
+    public static int BOARD_SIZE = 9;
     
     private static final int CHERRY_GENERATION_COOLdAWN = 2;
-    private static final int MAX_CHERRIES = 40;
+    private static final int MAX_CHERRIES = 3;
 
     private Snake snake = new Snake(new Point(BOARD_SIZE / 2, BOARD_SIZE / 2));
     private int turn = 0;
@@ -57,6 +57,7 @@ public class Board implements Drawable {
         boolean isAvailable = isAvailableSpace(headPoint);
         if (isAvailable) {
             snake.addHeadPoint(headPoint);
+            snake.checkSize();
         } else {
             gameOver = true;
         }

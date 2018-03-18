@@ -20,16 +20,16 @@ public class Snake implements Drawable{
     private int desiredSize;
 
     public Snake(Point startLocation) {
-        this.desiredSize = 3;
+        this.desiredSize = 1;
         this.previousDirection = TOP;
         this.nextDirection = TOP;
         addHeadPoint(startLocation);
     }
 
     public void setDirection(BodyPart nextDirection) {
-        if (nextDirection.getOpposite() != previousDirection) {
+        //if (nextDirection.getOpposite() != previousDirection) {
             this.nextDirection = nextDirection;
-        }
+        //}
     }
 
     public void eatCherry() {
@@ -40,7 +40,6 @@ public class Snake implements Drawable{
         Point headPoint = getHead();
         Point newHeadPoint = headPoint.add(nextDirection.getVelocity());
         previousDirection = nextDirection;
-        checkSize();
         return newHeadPoint;
     }
 
@@ -52,7 +51,7 @@ public class Snake implements Drawable{
         body.add(newHeadPoint);
     }
 
-    private void checkSize() {
+    public void checkSize() {
         if (body.size() > desiredSize) {
             body.removeFirst();
         }
