@@ -27,22 +27,22 @@ public class NNRunner {
             new QLearning.QLConfiguration(
                     1232825431,    //Random seed
                     400,    //Max step By epoch
-                    100000, //Max step
-                    50000, //Max size of experience replay
+                    10000, //Max step
+                    5000, //Max size of experience replay
                     64,     //size of batches
                     500,    //target update (hard)
-                    10,     //num step noop warmup
+                    5,     //num step noop warmup
                     1f,   //reward scaling
                     0.99,   //gamma
                     1.0,    //td-error clipping
-                    0.00f,   //min epsilon
-                    60000,   //num step for eps greedy anneal
+                    0.01f,   //min epsilon
+                    6000,   //num step for eps greedy anneal
                     true    //double DQN
             );
 
     public static DQNFactoryStdConv.Configuration CONV_CONFIG =
             DQNFactoryStdConv.Configuration.builder()
-                    .l2(0.000).learningRate(0.0005).build();
+                    .l2(0.0001).learningRate(0.0005).build();
 
     public static void main(String[] args) throws IOException {
         cartPole();

@@ -51,7 +51,7 @@ public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, Disc
             done = true;
         } else {
             int lengthAfter = board.getSnake().getDesiredSize();
-            reward = ((double)lengthAfter - lengthBefore) / 4;
+            reward = ((double)lengthAfter - lengthBefore) -0.04d;
             if (lengthAfter == 200) {
                 done = true;
             }

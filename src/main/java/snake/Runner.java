@@ -47,16 +47,16 @@ public class Runner {
             private void mainCycle() throws InterruptedException, IOException {
 
                 Board board = new Board();
-                //keyListener.setSnake(board.getSnake());
-                final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("D:/policy.nn");
+                keyListener.setSnake(board.getSnake());
+                //final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("D:/policy.nn");
                 panel.setBoard(board);
 
                 while(true) {
                     panel.repaint();
-                    INDArray input = Nd4j.create(new BoardEncodableWrapper(board).toArray());
-                    INDArray reshape = input.reshape(1, 3, 23, 23);
-                    Integer action = policy.nextAction(reshape);
-                    board.getSnake().setDirection(BodyPart.values()[action]);
+                    //INDArray input = Nd4j.create(new BoardEncodableWrapper(board).toArray());
+                    //INDArray reshape = input.reshape(1, 3, 23, 23);
+                    //Integer action = policy.nextAction(reshape);
+                    //board.getSnake().setDirection(BodyPart.values()[action]);
                     if (!board.move()) {
                         break;
                     }
