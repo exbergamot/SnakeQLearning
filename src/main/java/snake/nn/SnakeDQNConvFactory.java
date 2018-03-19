@@ -28,6 +28,10 @@ public class SnakeDQNConvFactory implements DQNFactory {
 
     DQNFactoryStdConv.Configuration conf;
 
+    public SnakeDQNConvFactory(DQNFactoryStdConv.Configuration conf) {
+        this.conf = conf;
+    }
+
     public DQN buildDQN(int shapeInputs[], int numOutputs) {
 
         if (shapeInputs.length == 1)
@@ -43,15 +47,19 @@ public class SnakeDQNConvFactory implements DQNFactory {
                 //.updater(Updater.RMSPROP).rmsDecay(conf.getRmsDecay())
                 .updater(conf.getUpdater() != null ? conf.getUpdater() : new Adam())
                 .weightInit(WeightInit.XAVIER).regularization(true).l2(conf.getL2()).list()
-                .layer(0, new ConvolutionLayer.Builder(3, 3).nIn(shapeInputs[0]).nOut(32).stride(1, 1)
+                .layer(0, new ConvolutionLayer.Builder(2, 2).nIn(shapeInputs[0]).nOut(32).stride(1, 1).padding(1,1)
                         .activation(Activation.RELU).build());
 
 
-        confB.layer(1, new ConvolutionLayer.Builder(4, 4).nOut(32).stride(1, 1).activation(Activation.RELU).build());
+        confB.layer(1, new ConvolutionLayer.Builder(3, 3).nOut(64).stride(1, 1).padding(2,2).activation(Activation.RELU).build());
 
-        confB.layer(2, new DenseLayer.Builder().nOut(256).activation(Activation.RELU).build());
+        confB.layer(2, new ConvolutionLayer.Builder(4, 4).nOut(64).stride(2, 2).padding(3,3).activation(Activation.RELU).build());
 
-        confB.layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY).nOut(numOutputs)
+        confB.layer(3, new ConvolutionLayer.Builder(4, 4).nOut(64).stride(2, 2).padding(3,3).activation(Activation.RELU).build());
+
+        confB.layer(4, new DenseLayer.Builder().nOut(128).activation(Activation.RELU).build());
+
+        confB.layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY).nOut(numOutputs)
                 .build());
 
         confB.setInputType(InputType.convolutional(shapeInputs[1], shapeInputs[2], shapeInputs[0]));

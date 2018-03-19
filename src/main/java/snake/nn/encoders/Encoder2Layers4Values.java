@@ -1,4 +1,4 @@
-package snake.nn;
+package snake.nn.encoders;
 
 import org.deeplearning4j.rl4j.space.Encodable;
 import snake.board.Board;
@@ -7,40 +7,28 @@ import snake.general.Point;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 import static snake.board.Board.BOARD_SIZE;
 
-public class BoardEncodableWrapper implements Encodable {
-    public static final int CHANNELS_COUNT = 2;
-    public static final int EXTENDED_BOARD_SIZE = BOARD_SIZE * 2 + 1;
-    public static final int FLATTEN_LAYER_SIZE = EXTENDED_BOARD_SIZE * EXTENDED_BOARD_SIZE;
-    public static final int TOTAL_OUTPUT_SIZE = FLATTEN_LAYER_SIZE * CHANNELS_COUNT;
+public class Encoder2Layers4Values extends SnakeEncoder {
+    private static final int CHANNELS_COUNT = 2;
+    private static final int EXTENDED_BOARD_SIZE = BOARD_SIZE * 2 + 1;
+    private static final int FLATTEN_LAYER_SIZE = EXTENDED_BOARD_SIZE * EXTENDED_BOARD_SIZE;
+    private static final int TOTAL_OUTPUT_SIZE = FLATTEN_LAYER_SIZE * CHANNELS_COUNT;
+    private static final int[] DIMENSIONS = new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE};
 
-    private double[] data;
-
-    public BoardEncodableWrapper(Board board) {
-        this.data = fillData(board);
+    public Encoder2Layers4Values(Board board) {
+        super(board);
     }
 
-    public double[] toArray() {
-        return data;
-    }
+    protected double[] fillData(Board board) {
+        double[] fieldLayer = new double[FLATTEN_LAYER_SIZE];
+        double[] headTailLayer = new double[FLATTEN_LAYER_SIZE];
 
-    private double[] fillData(Board board) {
-        double[] field = new double[TOTAL_OUTPUT_SIZE];
-        //Arrays.fill(field, FLATTEN_LAYER_SIZE, TOTAL_OUTPUT_SIZE - 1, -0.2 * 10);
-        Point fullDiagonalVector = new Point(BOARD_SIZE, BOARD_SIZE);
-        Point head = board.getSnake().getHead();
-        Point shift = fullDiagonalVector.subtract(head);//.add(new Point(1,1));
-        Point farthestPoint = shift.add(fullDiagonalVector);
-        fillBorders(field, shift, farthestPoint);
-        fillSnakeBody(field, board, shift);
-        fillCherries(field, board, shift);
-        return field;
+        return null;
     }
 
     private void fillCherries(double[] field, Board board, Point shift) {
@@ -56,23 +44,7 @@ public class BoardEncodableWrapper implements Encodable {
     }
 
     private void fillBorders(double[] field, Point shift, Point farthestPoint) {
-/*        for (int i = 0; i < field.length; i++) {
-            if (i < shift.getY() * BOARD_SIZE ||
-                i >= farthestPoint.getY() * BOARD_SIZE ||
-                i % BOARD_SIZE < shift.getX() ||
-                i % BOARD_SIZE > farthestPoint.getX()) {
-                field[i] = -1;
-            }
-        }*/
 
-        for (int i = 0; i < FLATTEN_LAYER_SIZE; i++) {
-            if (i < shift.getY() * EXTENDED_BOARD_SIZE ||
-                    i >= farthestPoint.getY() * EXTENDED_BOARD_SIZE ||
-                    i % EXTENDED_BOARD_SIZE < shift.getX() ||
-                    i % EXTENDED_BOARD_SIZE >= farthestPoint.getX()) {
-                field[i] = -1;
-            }
-        }
     }
     private void drawArray(double[] data) throws IOException {
         drawArray(data, new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE});
@@ -88,7 +60,7 @@ public class BoardEncodableWrapper implements Encodable {
             int leftPoint = i * shape[1] + i * 10;
             for (int j = 0; j < shape[2]; j++) {
                 for (int k = 0; k < shape[1]; k++) {
-                    int index = flattenIndex(k,j,i,shape);
+                    int index = flattenIndex(new Point(k,j), i);
                     Color color = Color.WHITE;
                     if (data[index] > 0) {
                         color = new Color(0,(int) (data[index] / max * 255), 0);
@@ -103,8 +75,10 @@ public class BoardEncodableWrapper implements Encodable {
         ImageIO.write(image, "png", new File("D:/output_image.png"));
     }
 
-    private int flattenIndex(int x, int y, int layer, int[] shape) {
-        int layerStart = layer * shape[1] * shape[2];
-        return y * shape[1] + x + layerStart;
+
+
+    @Override
+    public int[] getShape() {
+        return DIMENSIONS;
     }
 }

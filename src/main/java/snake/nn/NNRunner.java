@@ -18,34 +18,31 @@ import org.deeplearning4j.rl4j.util.DataManager;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
 import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
 
 public class NNRunner {
 
     public static QLearning.QLConfiguration CARTPOLE_QL =
             new QLearning.QLConfiguration(
-                    123,    //Random seed
-                    400,    //Max step By epoch
-                    100000, //Max step
-                    100000, //Max size of experience replay
+                    1232825431,    //Random seed
+                    500,    //Max step By epoch
+                    10000, //Max step
+                    5000, //Max size of experience replay
                     32,     //size of batches
                     500,    //target update (hard)
-                    15,     //num step noop warmup
-                    1,   //reward scaling
+                    5,     //num step noop warmup
+                    1f,   //reward scaling
                     0.99,   //gamma
                     1.0,    //td-error clipping
-                    0.001f,   //min epsilon
-                    20000,   //num step for eps greedy anneal
+                    0.00f,   //min epsilon
+                    6000,   //num step for eps greedy anneal
                     true    //double DQN
             );
 
-    public static DQNFactoryStdDense.Configuration CARTPOLE_NET =
-            DQNFactoryStdDense.Configuration.builder()
-                    .l2(0.00001).learningRate(0.0005).numHiddenNodes(64).numLayer(3).build();
-
     public static DQNFactoryStdConv.Configuration CONV_CONFIG =
             DQNFactoryStdConv.Configuration.builder()
-                    .l2(0.00001).learningRate(0.0005).build();
+                    .l2(0.000).learningRate(0.0005).build();
 
     public static void main(String[] args) throws IOException {
         cartPole();
@@ -60,8 +57,8 @@ public class NNRunner {
         //define the mdp from gym (name, render)
         MDP<BoardEncodableWrapper, Integer, DiscreteSpace> mdp = new SnakeMdpAdapter();
 
-        DQNFactoryStdConv factory = new DQNFactoryStdConv(CONV_CONFIG);
-        DQN dqnConv = factory.buildDQN(new int[]{2, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
+        SnakeDQNConvFactory factory = new SnakeDQNConvFactory(CONV_CONFIG);
+        DQN dqnConv = factory.buildDQN(new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE}, mdp.getActionSpace().getSize());
         QLearningDiscreteImpl dql = new QLearningDiscreteImpl(mdp, dqnConv, CARTPOLE_QL, manager, CARTPOLE_QL.getEpsilonNbStep());
 
         //define the training
