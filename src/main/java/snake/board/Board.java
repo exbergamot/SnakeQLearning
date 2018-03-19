@@ -51,7 +51,6 @@ public class Board implements Drawable {
         turn++;
         Point headPoint = snake.move();
         eatCherry(headPoint);
-        generateCherry();
         boolean isAvailable = isAvailableSpace(headPoint);
         if (isAvailable) {
             snake.addHeadPoint(headPoint);
@@ -59,6 +58,7 @@ public class Board implements Drawable {
         } else {
             gameOver = true;
         }
+        generateCherry();
         return isAvailable;
     }
 
@@ -72,13 +72,15 @@ public class Board implements Drawable {
     private void generateCherry() {
         if (turn % CHERRY_GENERATION_COOLdAWN == 0 &&
                 cherries.size() <= MAX_CHERRIES) {
-            Point cherryPoint = null;
-            do {
+            for (int i = 0; i < 100; i++) {
                 int x = random.nextInt(BOARD_SIZE);
                 int y = random.nextInt(BOARD_SIZE);
-                cherryPoint = new Point(x, y);
-            } while (!snake.isFree(cherryPoint));
-            cherries.add(cherryPoint);
+                Point cherryPoint = new Point(x, y);
+                if (snake.isFree(cherryPoint)) {
+                    cherries.add(cherryPoint);
+                    break;
+                }
+            }
         }
     }
 

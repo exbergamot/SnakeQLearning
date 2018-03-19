@@ -18,23 +18,24 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.primitives.Pair;
+import snake.nn.encoders.SnakeEncoder;
 
 import java.util.ArrayList;
 
-public class QLearningDiscreteImpl extends QLearningDiscrete<BoardEncodableWrapper> {
+public class QLearningDiscreteImpl extends QLearningDiscrete<SnakeEncoder> {
 
     @Getter
     final private QLConfiguration configuration;
     @Getter
     final private DataManager dataManager;
     @Getter
-    final private MDP<BoardEncodableWrapper, Integer, DiscreteSpace> mdp;
+    final private MDP<SnakeEncoder, Integer, DiscreteSpace> mdp;
     @Getter
     final private IDQN currentDQN;
     @Getter
-    private DQNPolicy<BoardEncodableWrapper> policy;
+    private DQNPolicy<SnakeEncoder> policy;
     @Getter
-    private EpsGreedy<BoardEncodableWrapper, Integer, DiscreteSpace> egPolicy;
+    private EpsGreedy<SnakeEncoder, Integer, DiscreteSpace> egPolicy;
     @Getter
     @Setter
     private IDQN targetDQN;
@@ -44,7 +45,7 @@ public class QLearningDiscreteImpl extends QLearningDiscrete<BoardEncodableWrapp
     private int lastMonitor = -Constants.MONITOR_FREQ;
 
 
-    public QLearningDiscreteImpl(MDP<BoardEncodableWrapper, Integer, DiscreteSpace> mdp, IDQN dqn, QLConfiguration conf, DataManager dataManager, int epsilonNbStep) {
+    public QLearningDiscreteImpl(MDP<SnakeEncoder, Integer, DiscreteSpace> mdp, IDQN dqn, QLConfiguration conf, DataManager dataManager, int epsilonNbStep) {
         super(mdp, dqn, conf, dataManager, epsilonNbStep);
         this.configuration = conf;
         this.mdp = mdp;
@@ -84,7 +85,7 @@ public class QLearningDiscreteImpl extends QLearningDiscrete<BoardEncodableWrapp
      * @param obs last obs
      * @return relevant info for next step
      */
-    protected QLStepReturn<BoardEncodableWrapper> trainStep(BoardEncodableWrapper obs) {
+    protected QLStepReturn<SnakeEncoder> trainStep(SnakeEncoder obs) {
 
         Integer action;
         INDArray input = getInput(obs);
@@ -128,7 +129,7 @@ public class QLearningDiscreteImpl extends QLearningDiscrete<BoardEncodableWrapp
 
         lastAction = action;
 
-        StepReply<BoardEncodableWrapper> stepReply = getMdp().step(action);
+        StepReply<SnakeEncoder> stepReply = getMdp().step(action);
 
         accuReward += stepReply.getReward() * configuration.getRewardFactor();
 
@@ -154,7 +155,7 @@ public class QLearningDiscreteImpl extends QLearningDiscrete<BoardEncodableWrapp
         }
 
 
-        return new QLStepReturn<BoardEncodableWrapper>(maxQ, getCurrentDQN().getLatestScore(), stepReply);
+        return new QLStepReturn<SnakeEncoder>(maxQ, getCurrentDQN().getLatestScore(), stepReply);
 
     }
 

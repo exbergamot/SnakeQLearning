@@ -1,6 +1,10 @@
 package snake.nn.encoders;
 
 import snake.board.Board;
+import snake.general.Point;
+
+import java.util.Deque;
+import java.util.Iterator;
 
 public class EncoderSingleHeadCenteredLayer extends SnakeEncoder {
 
@@ -21,9 +25,23 @@ public class EncoderSingleHeadCenteredLayer extends SnakeEncoder {
     protected double[] fillData(Board board) {
         double[] layer = new double[getLayerSize()];
         fillHeadCenteredBoards(layer);
+        fillHeadCenteredCherries(layer);
+        fillHeadCenteredIndexedBody(layer, board);
+        return layer;
+    }
 
-
-
-        return new double[0];
+    private void fillHeadCenteredIndexedBody(double[] layer, Board board) {
+        int coef = Board.BOARD_SIZE * Board.BOARD_SIZE;
+        Iterator<Point> iterator = board.getSnake().getBody().iterator();
+        int k = 0;
+        int length = board.getSnake().getDesiredSize();
+        while (iterator.hasNext()) {
+            Point point = iterator.next();
+            if (iterator.hasNext()) {
+                int i = flattenIndex(headCenterPoint(point), 0);
+                layer[i] = -1d / (1 + (length - k - 2) / (double)20);
+                k++;
+            }
+        }
     }
 }

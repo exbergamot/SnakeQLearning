@@ -14,14 +14,17 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.rl4j.mdp.MDP;
 import org.deeplearning4j.rl4j.network.dqn.DQN;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactory;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdConv;
+import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.util.Constants;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import snake.nn.encoders.SnakeEncoder;
 
 @Value
 public class SnakeDQNConvFactory implements DQNFactory {
@@ -32,8 +35,14 @@ public class SnakeDQNConvFactory implements DQNFactory {
         this.conf = conf;
     }
 
-    public DQN buildDQN(int shapeInputs[], int numOutputs) {
+    public DQN buildDQN(MDP<SnakeEncoder, Integer, DiscreteSpace> mdp) {
+        int[] shapeInputs = mdp.getObservationSpace().getShape();
+        int numOutputs = mdp.getActionSpace().getSize();
+        return buildDQN(shapeInputs, numOutputs);
+    }
 
+    public DQN buildDQN(int shapeInputs[], int numOutputs) {
+        int k = 0;
         if (shapeInputs.length == 1)
             throw new AssertionError("Impossible to apply convolutional layer on a shape == 1");
 
@@ -47,19 +56,17 @@ public class SnakeDQNConvFactory implements DQNFactory {
                 //.updater(Updater.RMSPROP).rmsDecay(conf.getRmsDecay())
                 .updater(conf.getUpdater() != null ? conf.getUpdater() : new Adam())
                 .weightInit(WeightInit.XAVIER).regularization(true).l2(conf.getL2()).list()
-                .layer(0, new ConvolutionLayer.Builder(2, 2).nIn(shapeInputs[0]).nOut(32).stride(1, 1).padding(1,1)
+                .layer(k++, new ConvolutionLayer.Builder(2, 2).nIn(shapeInputs[0]).nOut(16).stride(1, 1).padding(1,1)
                         .activation(Activation.RELU).build());
 
 
-        confB.layer(1, new ConvolutionLayer.Builder(3, 3).nOut(64).stride(1, 1).padding(2,2).activation(Activation.RELU).build());
+        //confB.layer(k++, new ConvolutionLayer.Builder(3, 3).nOut(64).stride(1, 1).padding(2,2).activation(Activation.RELU).build());
 
-        confB.layer(2, new ConvolutionLayer.Builder(4, 4).nOut(64).stride(2, 2).padding(3,3).activation(Activation.RELU).build());
+        confB.layer(k++, new ConvolutionLayer.Builder(3, 3).nOut(64).stride(1, 1).padding(2,2).activation(Activation.RELU).build());
 
-        confB.layer(3, new ConvolutionLayer.Builder(4, 4).nOut(64).stride(2, 2).padding(3,3).activation(Activation.RELU).build());
+        confB.layer(k++, new DenseLayer.Builder().nOut(256).activation(Activation.RELU).build());
 
-        confB.layer(4, new DenseLayer.Builder().nOut(128).activation(Activation.RELU).build());
-
-        confB.layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY).nOut(numOutputs)
+        confB.layer(k++, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY).nOut(numOutputs)
                 .build());
 
         confB.setInputType(InputType.convolutional(shapeInputs[1], shapeInputs[2], shapeInputs[0]));

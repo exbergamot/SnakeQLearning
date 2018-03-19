@@ -7,18 +7,22 @@ import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.space.ObservationSpace;
 import snake.board.Board;
 import snake.body.BodyPart;
+import snake.nn.encoders.EncoderSingleHeadCenteredLayer;
+import snake.nn.encoders.SnakeEncoder;
 
 import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
 import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
 import static snake.nn.BoardEncodableWrapper.TOTAL_OUTPUT_SIZE;
 
-public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, DiscreteSpace> {
+public class SnakeMdpAdapter implements MDP<SnakeEncoder, Integer, DiscreteSpace> {
+    private static final int TARGET_LENGTH = 80;
+
     private DiscreteSpace actionSpace = new DiscreteSpace(4);
-    private ObservationSpace<BoardEncodableWrapper> observationSpace = new ArrayObservationSpace<>(new int[]{CHANNELS_COUNT, EXTENDED_BOARD_SIZE,EXTENDED_BOARD_SIZE});
+    private ObservationSpace<SnakeEncoder> observationSpace = new ArrayObservationSpace<>(createWrapper(new Board()).getShape());
     private Board board = new Board();
 
     @Override
-    public ObservationSpace<BoardEncodableWrapper> getObservationSpace() {
+    public ObservationSpace<SnakeEncoder> getObservationSpace() {
         return observationSpace;
     }
 
@@ -28,9 +32,9 @@ public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, Disc
     }
 
     @Override
-    public BoardEncodableWrapper reset() {
+    public SnakeEncoder reset() {
         board = new Board();
-        return new BoardEncodableWrapper(board);
+        return createWrapper(board);
     }
 
     @Override
@@ -39,7 +43,7 @@ public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, Disc
     }
 
     @Override
-    public StepReply<BoardEncodableWrapper> step(Integer integer) {
+    public StepReply<SnakeEncoder> step(Integer integer) {
         board.getSnake().setDirection(BodyPart.values()[integer]);
         int lengthBefore = board.getSnake().getDesiredSize();
 
@@ -52,17 +56,17 @@ public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, Disc
         } else {
             int lengthAfter = board.getSnake().getDesiredSize();
             reward = ((double)lengthAfter - lengthBefore) / 4 - 0.01;
-            if (lengthAfter == 200) {
+            if (lengthAfter == TARGET_LENGTH) {
                 done = true;
             }
         }
 
-        return new StepReply<>(new BoardEncodableWrapper(board), reward, done, null);
+        return new StepReply<>(createWrapper(board), reward, done, null);
     }
 
     @Override
     public boolean isDone() {
-        if (board.getSnake().getBody().size() > 200) {
+        if (board.getSnake().getBody().size() >= TARGET_LENGTH) {
             return true;
         } else {
             return board.isOver();
@@ -70,7 +74,11 @@ public class SnakeMdpAdapter implements MDP<BoardEncodableWrapper, Integer, Disc
     }
 
     @Override
-    public MDP<BoardEncodableWrapper, Integer, DiscreteSpace> newInstance() {
+    public MDP<SnakeEncoder, Integer, DiscreteSpace> newInstance() {
         return new SnakeMdpAdapter();
+    }
+
+    private SnakeEncoder createWrapper(Board board) {
+        return SnakeEncoder.createEncoder(board);
     }
 }

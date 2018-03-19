@@ -7,12 +7,14 @@ import org.nd4j.linalg.factory.Nd4j;
 import snake.board.Board;
 import snake.body.BodyPart;
 import snake.nn.BoardEncodableWrapper;
+import snake.nn.encoders.SnakeEncoder;
 import snake.swing.GamePanel;
 import snake.swing.listeners.DirectionKeyListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
 import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
@@ -51,7 +53,6 @@ public class Runner {
                     }
                 }
             }
-
         });
 
         thread.start();
@@ -61,13 +62,17 @@ public class Runner {
     private static void mainCycleNN() throws InterruptedException, IOException {
 
         Board board = new Board();
-        final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("D:/policy.nn");
+        SnakeEncoder encoder = SnakeEncoder.createEncoder(board);
+        int[] shape = encoder.getShape();
+        shape = new int[]{1, shape[0], shape[1], shape[2]};
+        final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("F:/policy.nn");
         panel.setBoard(board);
 
         while(true) {
             panel.repaint();
-            INDArray input = Nd4j.create(new BoardEncodableWrapper(board).toArray());
-            INDArray reshape = input.reshape(1, CHANNELS_COUNT, EXTENDED_BOARD_SIZE, EXTENDED_BOARD_SIZE);
+            INDArray input = Nd4j.create(SnakeEncoder.createEncoder(board).toArray());
+
+            INDArray reshape = input.reshape(shape);
             Integer action = policy.nextAction(reshape);
             board.getSnake().setDirection(BodyPart.values()[action]);
             if (!board.move()) {
@@ -88,7 +93,7 @@ public class Runner {
             if (!board.move()) {
                 break;
             }
-            Thread.sleep(150);
+            Thread.sleep(200);
         }
     }
 }
