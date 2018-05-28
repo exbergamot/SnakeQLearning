@@ -18,8 +18,8 @@ public class Board implements Drawable {
     public static int CELL_SIZE = 20;
     public static int BOARD_SIZE = 9;
     
-    private static final int CHERRY_GENERATION_COOLdAWN = 2;
-    private static final int MAX_CHERRIES = 3;
+    private static final int CHERRY_GENERATION_COOLdAWN = 10;
+    private static final int MAX_CHERRIES = 1;
 
     private Snake snake = new Snake(new Point(BOARD_SIZE / 2, BOARD_SIZE / 2));
     private int turn = 0;
@@ -71,7 +71,7 @@ public class Board implements Drawable {
 
     private void generateCherry() {
         if (turn % CHERRY_GENERATION_COOLdAWN == 0 &&
-                cherries.size() <= MAX_CHERRIES) {
+                cherries.size() < MAX_CHERRIES) {
             for (int i = 0; i < 100; i++) {
                 int x = random.nextInt(BOARD_SIZE);
                 int y = random.nextInt(BOARD_SIZE);

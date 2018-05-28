@@ -5,7 +5,9 @@ import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning;
 import org.deeplearning4j.rl4j.mdp.MDP;
 import org.deeplearning4j.rl4j.network.dqn.DQN;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdConv;
+import org.deeplearning4j.rl4j.network.dqn.IDQN;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
+import org.deeplearning4j.rl4j.policy.NNExtractor;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.util.DataManager;
 import snake.nn.encoders.SnakeEncoder;
@@ -17,23 +19,23 @@ public class NNRunner {
     public static QLearning.QLConfiguration CARTPOLE_QL =
             new QLearning.QLConfiguration(
                     1232825431,    //Random seed
-                    500,    //Max step By epoch
-                    15000, //Max step
-                    20000, //Max size of experience replay
-                    32,     //size of batches
-                    500,    //target update (hard)
+                    2000,    //Max step By epoch
+                    100000, //Max step
+                    100000, //Max size of experience replay
+                    64,     //size of batches
+                    5000,    //target update (hard)
                     5,     //num step noop warmup
                     1f,   //reward scaling
                     0.99,   //gamma
                     1.0,    //td-error clipping
-                    0.002f,   //min epsilon
-                    7000,   //num step for eps greedy anneal
+                    0.00f,   //min epsilon
+                    10000,   //num step for eps greedy anneal
                     true    //double DQN
             );
 
     public static DQNFactoryStdConv.Configuration CONV_CONFIG =
             DQNFactoryStdConv.Configuration.builder()
-                    .l2(0.000).learningRate(0.0005).build();
+                    .l2(0.000).learningRate(0.00005).build();
 
     public static void main(String[] args) throws IOException {
         Logger.setLevel(Logger.ERROR);
@@ -49,8 +51,11 @@ public class NNRunner {
         //define the mdp from gym (name, render)
         MDP<SnakeEncoder, Integer, DiscreteSpace> mdp = new SnakeMdpAdapter();
 
-        SnakeDQNConvFactory factory = new SnakeDQNConvFactory(CONV_CONFIG);
-        DQN dqnConv = factory.buildDQN(mdp);
+        //SnakeDQNConvFactory factory = new SnakeDQNConvFactory(CONV_CONFIG);
+        //DQN dqnConv = factory.buildDQN(mdp);
+
+        IDQN dqnConv = loadNN();
+
         QLearningDiscreteImpl dql = new QLearningDiscreteImpl(mdp, dqnConv, CARTPOLE_QL, manager, CARTPOLE_QL.getEpsilonNbStep());
 
         //define the training
@@ -63,10 +68,15 @@ public class NNRunner {
         DQNPolicy<SnakeEncoder> pol = dql.getPolicy();
 
         //serialize and save (serialization showcase, but not required)
-        pol.save("F:/policy.nn");
+        pol.save("C:/policies/policyOut.nn");
 
         //close the mdp (close http)
         mdp.close();
 
+    }
+
+    public static IDQN loadNN() throws IOException {
+        final DQNPolicy<SnakeEncoder> policy = DQNPolicy.load("C:/policies/policy.nn");
+        return NNExtractor.extract(policy);
     }
 }

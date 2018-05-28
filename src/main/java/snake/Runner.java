@@ -1,33 +1,46 @@
 package snake;
 
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
-import org.deeplearning4j.rl4j.space.Box;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import snake.board.Board;
 import snake.body.BodyPart;
-import snake.nn.BoardEncodableWrapper;
 import snake.nn.encoders.SnakeEncoder;
 import snake.swing.GamePanel;
 import snake.swing.listeners.DirectionKeyListener;
+import snake.swing.menu.GameMenuBar;
+import snake.swing.tabs.DataPanel;
+import snake.swing.tabs.RunNetworkPanel;
+import snake.swing.tabs.StartLearningPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
-
-import static snake.nn.BoardEncodableWrapper.CHANNELS_COUNT;
-import static snake.nn.BoardEncodableWrapper.EXTENDED_BOARD_SIZE;
 
 
 public class Runner {
+    public static final String POLICY_FILE = "C:/policies/policy500k.nn";
+    public static final int NN_CYCLE_DELAY = 50;
     private static GamePanel panel;
     private static DirectionKeyListener keyListener;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
-        frame.setPreferredSize(new Dimension(600,600));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setJMenuBar(new GameMenuBar());
+
+        //JPanel panel = new DataPanel(DataPanel.RL_CONFIGURATION, new String[]{"1", "2", "3", "4", "5"});
+        JPanel panel = new StartLearningPanel();
+        //JPanel panel = new RunNetworkPanel();
+        frame.add(panel);
+
+        //startGame(frame);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void startGame(JFrame frame) {
         panel = new GamePanel();
         panel.setDoubleBuffered(true);
         panel.setSize(new Dimension(600,600));
@@ -35,8 +48,7 @@ public class Runner {
         frame.add(panel);
         keyListener = new DirectionKeyListener();
         frame.addKeyListener(keyListener);
-        frame.pack();
-        frame.setVisible(true);
+
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -56,7 +68,6 @@ public class Runner {
         });
 
         thread.start();
-
     }
 
     private static void mainCycleNN() throws InterruptedException, IOException {
@@ -65,7 +76,7 @@ public class Runner {
         SnakeEncoder encoder = SnakeEncoder.createEncoder(board);
         int[] shape = encoder.getShape();
         shape = new int[]{1, shape[0], shape[1], shape[2]};
-        final DQNPolicy<BoardEncodableWrapper> policy = DQNPolicy.load("F:/policy.nn");
+        final DQNPolicy<SnakeEncoder> policy = DQNPolicy.load(POLICY_FILE);
         panel.setBoard(board);
 
         while(true) {
@@ -78,7 +89,7 @@ public class Runner {
             if (!board.move()) {
                 break;
             }
-            Thread.sleep(150);
+            Thread.sleep(NN_CYCLE_DELAY);
         }
     }
 

@@ -20,7 +20,7 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         if (board != null) {
             board.draw(g);
-            SnakeEncoder.createEncoder(board).draw(g);
+            //SnakeEncoder.createEncoder(board).draw(g);
         }
     }
 
